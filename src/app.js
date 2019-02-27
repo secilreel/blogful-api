@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const { NODE_ENV } = require('./config');
+const ArticlesService = require('./service');
 
 const app = express();
 
@@ -21,24 +22,18 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use((req,res,next)=> {
-  const authToken = req.get('Authorization');
-  if(!authToken || authToken.split(' ')[1] !== process.env.API_TOKEN){
-    return res.status(401).send({error: 'Unauthorized'});
-  }
-  next();
-});
-
-app.use((req,res,next)=> {
-  const authToken = req.get('Authorization');
-  if(!authToken || authToken.split(' ')[1] !== process.env.API_TOKEN){
-    return res.status(401).send({error: 'Unauthorized'});
-  }
-  next();
-});
+// app.use((req,res,next)=> {
+//   const authToken = req.get('Authorization');
+//   if(!authToken || authToken.split(' ')[1] !== process.env.API_TOKEN){
+//     return res.status(401).send({error: 'Unauthorized'});
+//   }
+//   next();
+// });
 
 app.get('/', (req, res) => {
-  res.send('Hello, boilerplate!');
+  const db = req.app.get('db');
+  ArticlesService.getAllArticles(db)
+    .then(articles => res.json(articles));
 });
 
 app.use(function ErrorHandler(error, req, res, next) {
